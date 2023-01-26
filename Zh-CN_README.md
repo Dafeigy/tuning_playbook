@@ -1,0 +1,1 @@
+This is a Chinese Translation version of the original `README` file.
