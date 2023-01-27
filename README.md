@@ -107,36 +107,21 @@
 
 ### Choosing the batch size
 
-***Summary:*** *The batch size governs the training speed and shouldn't be used
-to directly tune the validation set performance. Often, the ideal batch size
-will be the largest batch size supported by the available hardware.*
+***总结：*** *批次大小决定了训练的速度并且不应该在为了提高验证集性能而直接更改。通常来说理想的批次大小将会是可行硬件支持的最大批次大小。*
 
--   The batch size is a key factor in determining the *training time* and
-    *computing resource consumption*.
--   Increasing the batch size will often reduce the training time. This can be
-    highly beneficial because it, e.g.:
-    -   Allows hyperparameters to be tuned more thoroughly within a fixed time
-        interval, potentially resulting in a better final model.
-    -   Reduces the latency of the development cycle, allowing new ideas to be
-        tested more frequently.
--   Increasing the batch size may either decrease, increase, or not change the
-    resource consumption.
--   The batch size should *not be* treated as a tunable hyperparameter for
-    validation set performance.
-    -   As long as all hyperparameters are well-tuned (especially the learning
-        rate and regularization hyperparameters) and the number of training
-        steps is sufficient, the same final performance should be attainable
-        using any batch size (see
-        [Shallue et al. 2018](https://arxiv.org/abs/1811.03600)).
-    -   Please see [Why shouldn't the batch size be tuned to directly improve
-        validation set
-        performance?](#why-shouldnt-the-batch-size-be-tuned-to-directly-improve-validation-set-performance)
+-   批次大小是一个对 *训练时间* 长短和 *计算资源消耗* 的关键决定因素。
+-   增加批次大小通常会减少训练时间。这对训练而言很有用，比如说：
+    -   允许超参数更彻底地在一个固定时间间隔内调整，并能隐式地训练出更好的模型。
+    -   减少开发过程的延迟，新的想法可以更快地得到测试验证。
+-   增加批次大小导致的资源消耗可能会或减少、或增加或甚至不变。
+-   批次大小 *不应该* 被当作验证集性能上的一个可调的超参数。
+    -   只要超参数被调整好（尤其是学习率和正则参数）并且训练的步骤是合理的，使用任意不同的批次大小应该会获得相同的效果（见[Shallue 等人的论文](https://arxiv.org/abs/1811.03600)）。
+    -   请参考 [Why shouldn't the batch size be tuned to directly improve validation set performance?](#why-shouldnt-the-batch-size-be-tuned-to-directly-improve-validation-set-performance)这一节内容。
 
 #### Determining the feasible batch sizes and estimating training throughput
 
 
 <details><summary><em>[Click to expand]</em></summary>
-
 <br>
 
 -   For a given model and optimizer, there will typically be a range of batch
