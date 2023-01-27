@@ -9,7 +9,7 @@
 
 &Dagger; Harvard University
 
-## Table of Contents
+## 文档内容
 
 -   [Who is this document for?](#who-is-this-document-for)
 -   [Why a tuning playbook?](#why-a-tuning-playbook)
@@ -42,39 +42,29 @@
 -   [Citing](#citing)
 -   [Contributing](#contributing)
 
-## Who is this document for?
+## 这篇文档的受众？
 
-此文档是为对**最大化深度学习模型性能**感兴趣的工程师和（个人与团队）研究者提供的。
+此文档是为对**最大化深度学习模型性能**感兴趣的工程师和（个人与团队）研究者提供的。我们假定您已拥有基础的机器学习和深度学习概念的相关认识。本文档的重点在于**超参数调整的过程**。文档同样涉及到深度学习训练的另一方面进行了探索，比如训练的方法部署和优化，但是这部分的内容并非我们完善的重点。我们假定机器学习问题是一个监督学习问题或一个与之类似的问题（例如自监督问题），这意味着本文档内的一些方法可能同样适用于其他类型的问题中。
 
-我们假定您已拥有基础的机器学习和深度学习概念的相关认识。
+## 为何是一本playbook？
 
-本文档的重点在于**超参数调整的过程**。文档同样涉及到深度学习训练的另一方面进行了探索，
-
-比如训练的方法部署和优化，但是这部分的内容并非我们完善的重点。
-
-我们假定机器学习问题是一个监督学习问题或一个与之类似的问题（例如自监督问题）。
-
-这意味着本文档内的一些方法可能同样适用于其他类型的问题中。
-
-## Why a tuning playbook?
-
-目前，已有大量的工作和猜想的实践使深度神经网络在实践中良好地工作。然而，使用深度学习获得良好结果的实现方法很少被记录下来。论文为了更好地组织结构忽略了训练过程的描述而直接展现最终结果，与此同时聚焦于商业项目上的机器学习工程师很少有时间记录下他们的过程。教科书倾向于回避实践指导，而是优先考虑基础知识原则，即便这些作者有良好的应用经验并可以提供给有用的建议。在准备这篇文档时，我们无法找到一种能去全面解释*如何在深度学习中获得良好结果*的方法。相反，我们发现在博客帖子与社交媒体上找到了一些建议，包括在论文附录中的训练技巧、某个研究项目的特定训练流程以及诸多的困惑。深度学习专家和缺乏能力的实践者使用看似相同的方法在结构上也存在着鸿沟；同时，这些专家也承认他们所使用的一些技巧可能并不是有所依据的。随着深度学习的成熟并将对世界产生更大的影响，我们的社区需要更多涵盖所有对获得良好结果至关重要的实用细节和有效方法的资源。
+目前，已有大量的工作和猜想的实践使深度神经网络在实践中良好地工作。然而，使用深度学习获得良好结果的实现方法很少被记录下来。论文为了更好地组织结构忽略了训练过程的描述而直接展现最终结果，与此同时聚焦于商业项目上的机器学习工程师很少有时间记录下他们的过程。教科书倾向于回避实践指导，而是优先考虑基础知识原则，即便这些作者有良好的应用经验并可以提供给有用的建议。在准备这篇文档时，我们无法找到一种能去全面解释 *如何在深度学习中获得良好结果* 的方法。相反，我们发现在博客帖子与社交媒体上找到了一些建议，包括在论文附录中的训练技巧、某个研究项目的特定训练流程以及诸多的困惑。深度学习专家和缺乏能力的实践者使用看似相同的方法在结构上也存在着鸿沟；同时，这些专家也承认他们所使用的一些技巧可能并不是有所依据的。随着深度学习的成熟并将对世界产生更大的影响，我们的社区需要更多涵盖所有对获得良好结果至关重要的实用细节和有效方法的资源。
 
 我们是一个耕耘深度学习领域多年的五人研究者与工程师的团队，我们中的一些人早在2006年就开始了相关的研究。从语音识别到天文学，我们将深度学习应用于各种问题，并在这个过程中积累了许多知识与经验。这篇文档源于我们自己训练神经网络的经验，旨在指导机器学习的新工程师并为我们的同时提供深度学习的实践建议。尽管看到在大量的高校实验室里实践机器学习的方法和机器学习驱动的技术产品造福上亿人非常欣慰，深度学习作为一门工程学科依然处于起步阶段。我们希望这份文档可以鼓励并帮助他人理解该领域的实验方法。
 
-这份文档是在我们试图凝练自己在深度学习的方法时产生的，因此它代表了作者当时的观点，而不是任何形式的客观事实。我们自己与超参数的调优斗争使它成为我们指南的一个特别重点，但此文档也涵盖其他我们在工作中遇到（或看到出错）的重要问题。我们的意图是让这项工作成为一份灵活的文档，并随着我们的观点会改变。例如，两年前我们如果要写关于调试和调优的材料来说是不可能的，因为它需要基于最近的研究结果和正在进行的调查。不可避免地，我们的一些建议将需要更新，以说明新的结果和改进工作流程。我们不知道*最佳的*深度学习方法，但是只要社区没开始记录并讨论不同的流程，我们就不能找到它。为此，我们鼓励那些使用我们的提出的建议并发现了更好的方法的读者，带着令人信服的证据，一起更新这篇文档。我们也希望看到其他的指南和提供可能不同建议的文档，这样我们就一起将实践做到最好。最后，任何标有🤖表情符号是我们想做更多的研究的方向。只有在尝试写下这篇文档之后才发现，在深度学习从业者的工作流程中可以找到多少有趣的和被忽视的研究问题。
+这份文档是在我们试图凝练自己在深度学习的方法时产生的，因此它代表了作者当时的观点，而不是任何形式的客观事实。我们自己与超参数的调优斗争使它成为我们指南的一个特别重点，但此文档也涵盖其他我们在工作中遇到（或看到出错）的重要问题。我们的意图是让这项工作成为一份灵活的文档，并随着我们的观点会改变。例如，两年前我们如果要写关于调试和调优的材料来说是不可能的，因为它需要基于最近的研究结果和正在进行的调查。不可避免地，我们的一些建议将需要更新，以说明新的结果和改进工作流程。我们不知道*最佳的*深度学习方法，但是只要社区没开始记录并讨论不同的流程，我们就不能找到它。为此，我们鼓励那些使用我们的提出的建议并发现了更好的方法的读者，带着令人信服的证据，一起更新这篇文档。我们也希望看到其他的指南和提供可能不同建议的文档，这样我们就一起将实践做到最好。最后，任何标有🤖表情符号是我们想做更多的研究的方向。只有在我们尝试写下这篇文档之后才发现，在深度学习从业者的工作流程中可以找到多少有趣的和被忽视的研究问题。
 
-## Guide for starting a new project
+## 开始新项目的指南
 
 调优过程的许多决定都可以在项目开始之际决定，仅需在场景变化时偶尔需要重新考虑。
 
-我们下文的指导有如下的假设：
+我们下文的内容有如下的假设：
 
--   问题的建模足够本质，数据清洗之类的工作已经完成，并且已经在模型架构和训练配置上花费实践验证有效
--   已经建立了包含训练和评估的流程，并且对不同的研究模型容易执行训练和预测的工作
--   选择并部署了恰当的测量手段。测量手段应该能充分反映部署环境下的需测量的信息。
+-   问题的建模足够本质，数据清洗之类的工作已经完成，并且已经在模型架构和训练配置上花费实践验证有效；
+-   已经建立了包含训练和评估的流程，并且对不同的研究模型容易执行训练和预测的工作；
+-   选择并部署了恰当的测量手段，其中测量手段应该能充分反映部署环境下的需测量的信息。
 
-### Choosing the model architecture
+### 选择模型架构
 
 ***总结：*** *当开始一个新项目时，尝试重新使用一个已经有效的模型。*
 
@@ -84,7 +74,7 @@
     -   我们会在[Choosing the initial configuration](#choosing-the-initial-configuration)和[A scientific approach to improving model performance](#a-scientific-approach-to-improving-model-performance)两个模块讨论模型超参数的选择问题。
 -   如果可以的话，找到和你需要解决问题相似的论文并将论文中的模型作为一个调试的出发点。
 
-### Choosing the optimizer
+### 选择优化器
 
 ***总结:*** *就当前问题选择最欢迎的优化器。*
 
@@ -95,17 +85,14 @@
 -   注意所选优化器涉及的**所有**超参数：
     -   有更多超参数的优化器需要更多的调试以得到最好的配置。
     -   项目的初始阶段将优化器的超参数作为 [待调优参数](#identifying-scientific-nuisance-and-fixed-hyperparameters)并将其他超参数（比如说模型架构的超参数）的值调优非常关键。
-    -   It may be preferable to start with a simpler optimizer (e.g. SGD with
-        fixed momentum or Adam with fixed $\epsilon$, $\beta_{1}$, and
-        $\beta_{2}$) in the initial stages of the project and switch to a more
-        general optimizer later.
+    -   在训练开始之时选择简单的优化器（比如说固定动量的随机梯度下降或者固定$\epsilon$, $\beta_{1}$以及$\beta_{2}$的 Adam 优化器）并在之后使用更通用的优化器。
 -   我们喜欢使用的一些构造良好的优化器（包括但不限于）有：
     -   [带动量的 SGD ](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms)（我们喜欢使用Nesterov的变种）
-    -   [Adam 和 NAdam](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms)，比带动量的 SGD 更具适用性。 注意： Adam 有4个可调参数并且他们都很有用](https://arxiv.org/abs/1910.05446)！
+    -   [Adam 和 NAdam](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms)，比带动量的 SGD 更具适用性。 注意： Adam 有4个可调参数并且[他们都很有用](https://arxiv.org/abs/1910.05446)！
         -   参考：
             [How should Adam's hyperparameters be tuned?](#how-should-adams-hyperparameters-be-tuned)
 
-### Choosing the batch size
+### 选择批次大小
 
 ***总结：*** *批次大小决定了训练的速度并且不应该在为了提高验证集性能而直接更改。通常来说理想的批次大小将会是可行硬件支持的最大批次大小。*
 
@@ -118,117 +105,62 @@
     -   只要超参数被调整好（尤其是学习率和正则参数）并且训练的步骤是合理的，使用任意不同的批次大小应该会获得相同的效果（见[Shallue 等人的论文](https://arxiv.org/abs/1811.03600)）。
     -   请参考 [Why shouldn't the batch size be tuned to directly improve validation set performance?](#why-shouldnt-the-batch-size-be-tuned-to-directly-improve-validation-set-performance)这一节内容。
 
-#### Determining the feasible batch sizes and estimating training throughput
+#### 确定可行的批次大小并估量训练的吞吐
 
-
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
 <br>
 
--   对于给定的模型和优化器，通常由很多的硬件支持的批次大小选择。批次大小的限制因素主要是加速器的内存。（译注：指GPU的显存）
+
+-   对于给定的模型和优化器，通常由很多的硬件支持的批次大小选择。批次大小的限制因素主要是加速器的内存。（译注：一般指GPU的显存）
 -   不幸的是，不运行代码或者至少编译整个训练程序，都无法计算合适的批次大小。
 -   最简单的方法就是通常在运行训练任务时设定不同的批次大小（比如按2的幂次方选取）并在小范围内运行指导其中一项任务达到了可行的加速器内存上限。
 -   对于每一个批次大小，我们应该训练足够长的时间以获得准确的 *训练吞吐* （training throughput）的估计：
 
-<p align="center">训练吞吐 = 每秒处理的样本数</p>
+<p align="center"><em>训练吞吐</em> = 每秒处理的样本数</p>
 
-<p align="center">或者等价地计算 <em>每步消耗的时间（time per step）</em>。</p>
+<p align="center">或者等价地计算 <em>每步消耗的时间（time per step）</em>：</p>
 
-<p align="center">每步消耗的时间 = (批次大小) / (训练吞吐)</p>
+<p align="center"><em>每步消耗的时间</em> = (批次大小) / (训练吞吐)</p>
 
--   When the accelerators aren't yet saturated, if the batch size doubles, the
-    training throughput should also double (or at least nearly double).
-    Equivalently, the time per step should be constant (or at least nearly
-    constant) as the batch size increases.
--   If this is not the case then the training pipeline has a bottleneck such as
-    I/O or synchronization between compute nodes. This may be worth diagnosing
-    and correcting before proceeding.
--   If the training throughput increases only up to some maximum batch size,
-    then we should only consider batch sizes up to that maximum batch size, even
-    if a larger batch size is supported by the hardware.
-    -   All benefits of using a larger batch size assume the training throughput
-        increases. If it doesn't, fix the bottleneck or use the smaller batch
-        size.
-    -   **Gradient accumulation** simulates a larger batch size than the
-        hardware can support and therefore does not provide any throughput
-        benefits. It should generally be avoided in applied work.
--   These steps may need to be repeated every time the model or optimizer is
-    changed (e.g. a different model architecture may allow a larger batch size
-    to fit in memory).
+-   当加速器还未满载时，如果批次大小加倍那么训练的吞吐量应该也是（或者至少接近）翻倍的。等价的，每步执行的时间随着批次大小增加，应该增加（或者至少接近）一个常数。
+-   如果不符合上述描述情况，那么训练的流程存在某种瓶颈，比如说系统的I/O问题或者不同计算节点的同步问题，这需要在真正训练之前诊断并纠正回来。
+-   如果训练吞吐的增加和某些最大的批次大小相关，那么我们应该只考虑最大批次大小相关的批次大小选项，即便我们的硬件支持更大的批次大小。
+    -   所有使用更大的批次大小带来的好处都是假定在训练吞吐增加的基础上的。如果训练吞吐增加并不会带来更好的效果，那么应该去修复瓶颈或者使用更小的批次大小。
+    -   **梯度积累** 模拟了一个比硬件可支持的更大的批次大小，因此它并不能提供任何吞吐上的增益。它在应用过程中应该避免被使用。
+-    这些步骤需要在模型或者优化器产生变化时进行重复（比如说一个不同的模型架构可以允许内存容纳更大的批次大小）。
 
 </details>
 
-#### Choosing the batch size to minimize training time
+#### 选择最小化训练时间的批次大小
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
+<p align="center">训练时间 = (每步执行时间) x (执行步骤总数)</p>
 
-<br>
-
-
-<p align="center">Training time = (time per step) x (total number of steps)</p>
-
--   We can often consider the time per step to be approximately constant for all
-    feasible batch sizes. This is true when there is no overhead from parallel
-    computations and all training bottlenecks have been diagnosed and corrected
-    (see the
-    [previous section](#determining-the-feasible-batch-sizes-and-estimating-training-throughput)
-    for how to identify training bottlenecks). In practice, there is usually at
-    least some overhead from increasing the batch size.
--   As the batch size increases, the total number of steps needed to reach a
-    fixed performance goal typically decreases (provided all relevant
-    hyperparameters are re-tuned when the batch size is changed;
-    [Shallue et al. 2018](https://arxiv.org/abs/1811.03600)).
-    -   E.g. Doubling the batch size might halve the total number of steps
-        required. This is called **perfect scaling**.
-    -   Perfect scaling holds for all batch sizes up to a critical batch size,
-        beyond which one achieves diminishing returns.
-    -   Eventually, increasing the batch size no longer reduces the number of
-        training steps (but never increases it).
--   Therefore, the batch size that minimizes training time is usually the
-    largest batch size that still provides a reduction in the number of training
-    steps required.
-    -   This batch size depends on the dataset, model, and optimizer, and it is
-        an open problem how to calculate it other than finding it experimentally
-        for every new problem. 🤖
-    -   When comparing batch sizes, beware the distinction between an example
-        budget/[epoch](https://developers.google.com/machine-learning/glossary#epoch)
-        budget (running all experiments while fixing the number of training
-        example presentations) and a step budget (running all experiments with
-        the number of training steps fixed).
-        -   Comparing batch sizes with an epoch budget only probes the perfect
-            scaling regime, even when larger batch sizes might still provide a
-            meaningful speedup by reducing the number of training steps
-            required.
-    -   Often, the largest batch size supported by the available hardware will
-        be smaller than the critical batch size. Therefore, a good rule of thumb
-        (without running any experiments) is to use the largest batch size
-        possible.
--   There is no point in using a larger batch size if it ends up increasing the
-    training time.
+-   我们通常对不同的可行批次大小将每步执行时间粗略认为是一个常数，这种假设是合理的因为并行计算没有额外开销，并且训练瓶颈已经被攻克(如何确定训练的瓶颈请参见[前一节内容](#determining-the-feasible-batch-sizes-and-estimating-training-throughput)）。在实践中通常至少会有一些随批次大小增加而产生的开销。
+-   当批次大小增加时，达到相同性能所需要的训练总步数会下降（当批次大小改变时所有相关的超参数被重新调整的情况，参考[Shallue 等人的论文](https://arxiv.org/abs/1811.03600)）。
+    -   比如说，批次大小翻倍可能会使训练总步数减半，这称为**完美尺度变换**。
+    -   完美尺度变换有一个批次大小的阈值，超出这个阈值 将不会有训练步数的增益。
+    -   最后，无限地增加批次大小不会减少训练的总步数（但至少不会增加）。
+-   因此最小化训练时间的批次大小通常就是能使得训练步数递减最多的最大批次大小。
+    -   这个批次大小取决于数据集、模型和优化器，并且如何计算这个批次大小是一个开放的问题而不是在面对新问题时通过实验得到的。🤖
+    -   当比较批次大小时，要注意样本/[回合](https://developers.google.com/machine-learning/glossary#epoch)开销和单步执行开销的区别。前者是在固定数量的训练样本上进行的所有实验，后者是在训练步数固定时运行进行的所有实验。
+        -   即便有更大的批次大小能提供减少训练步骤的所需要的时间的方法，对比批次大小的回合开销也只和完美尺度缩放有关。
+    -   通常来说，最大的硬件支持的批次大小会比上文提到的阈值要小。因此一个绝好的方法（不需要额外的实验来验证）就是用尽可能大的批次大小。
+-   某些更大的批次大小却导致训练总时间增加，这种情况一定要避免使用。
 
 </details>
 
-#### Choosing the batch size to minimize resource consumption
+#### 选择最小化资源开销的批次大小
 
-<details><summary><em>[Click to expand]</em></summary>
-
-<br>
+<details><summary><em>[点击展开]</em></summary>
 
 
--   There are two types of resource costs associated with increasing the batch
-    size:
-    1.  *Upfront costs*, e.g. purchasing new hardware or rewriting the training
-        pipeline to implement multi-GPU / multi-TPU training.
-    2.  *Usage costs*, e.g. billing against the team's resource budgets, billing
-        from a cloud provider, electricity / maintenance costs.
+-   和批次大小增加有关的资源开销有两种：
+    1.  先期开销，比如使用新的硬件或在多GPU/多TPU上训练以覆写训练流程。
+    2.  后期开销，比如团队资源分配、云服务器、电力/维护开销。
 -   If there are significant upfront costs to increasing the batch size, it
     might be better to defer increasing the batch size until the project has
-    matured and it is easier to assess the cost-benefit tradeoff. Implementing
-    multi-host parallel training programs can introduce
-    [bugs](#considerations-for-multi-host-pipelines) and
-    [subtle issues](#batch-normalization-implementation-details) so it is
-    probably better to start off with a simpler pipeline anyway. (On the other
-    hand, a large speedup in training time might be very beneficial early in the
-    process when a lot of tuning experiments are needed).
+    matured and it is easier to assess the cost-benefit tradeoff. 如果先期开销会随着批次大小的增加而增加，那么最好在项目成熟前拖延批次大小的增加，这更易于在成本-收益之间获得权衡。部署多主机的并行训练程序可能会引入[bugs](#considerations-for-multi-host-pipelines) 或一些微小的[issues](#batch-normalization-implementation-details) 并且最好一开始时使用简单的训练流程。（从另一方面来讲，训练时间的加速可能在早期非常有用因为此时需要大量的调参实验。）
 -   We refer to the total usage cost (which may include multiple different kinds
     of costs) as the "resource consumption". We can break down the resource
     consumption into the following components:
