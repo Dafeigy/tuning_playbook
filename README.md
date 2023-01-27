@@ -1,6 +1,6 @@
 # Deep Learning Tuning Playbook
 
-*This is not an officially supported Google product.*
+*这并非为受谷歌官方的支持的产品。*
 
 **Varun Godbole<sup>&dagger;</sup>, George E. Dahl<sup>&dagger;</sup>, Justin Gilmer<sup>&dagger;</sup>, Christopher J. Shallue<sup>&Dagger;</sup>, Zachary Nado<sup>&dagger;</sup>**
 
@@ -44,144 +44,65 @@
 
 ## Who is this document for?
 
-This document is for engineers and researchers (both individuals and teams)
-interested in **maximizing the performance of deep learning models**. We assume
-basic knowledge of machine learning and deep learning concepts.
+此文档是为对**最大化深度学习模型性能**感兴趣的工程师和（个人与团队）研究者提供的。
 
-Our emphasis is on the **process of hyperparameter tuning**. We touch on other
-aspects of deep learning training, such as pipeline implementation and
-optimization, but our treatment of those aspects is not intended to be complete.
+我们假定您已拥有基础的机器学习和深度学习概念的相关认识。
 
-We assume the machine learning problem is a supervised learning problem or
-something that looks a lot like one (e.g. self-supervised). That said, some of
-the prescriptions in this document may also apply to other types of problems.
+本文档的重点在于**超参数调整的过程**。文档同样涉及到深度学习训练的另一方面进行了探索，
+
+比如训练的方法部署和优化，但是这部分的内容并非我们完善的重点。
+
+我们假定机器学习问题是一个监督学习问题或一个与之类似的问题（例如自监督问题）。
+
+这意味着本文档内的一些方法可能同样适用于其他类型的问题中。
 
 ## Why a tuning playbook?
 
-Currently, there is an astonishing amount of toil and guesswork involved in
-actually getting deep neural networks to work well in practice. Even worse, the
-actual recipes people use to get good results with deep learning are rarely
-documented. Papers gloss over the process that led to their final results in
-order to present a cleaner story, and machine learning engineers working on
-commercial problems rarely have time to take a step back and generalize their
-process. Textbooks tend to eschew practical guidance and prioritize fundamental
-principles, even if their authors have the necessary experience in applied work
-to provide useful advice. When preparing to create this document, we couldn't
-find any comprehensive attempt to actually explain *how to get good results with
-deep learning*. Instead, we found snippets of advice in blog posts and on social
-media, tricks peeking out of the appendix of research papers, occasional case
-studies about one particular project or pipeline, and a lot of confusion. There
-is a vast gulf between the results achieved by deep learning experts and less
-skilled practitioners using superficially similar methods. At the same time,
-these very experts readily admit some of what they do might not be
-well-justified. As deep learning matures and has a larger impact on the world,
-the community needs more resources covering useful recipes, including all the
-practical details that can be so critical for obtaining good results.
+目前，已有大量的工作和猜想的实践使深度神经网络在实践中良好地工作。然而，使用深度学习获得良好结果的实现方法很少被记录下来。论文为了更好地组织结构忽略了训练过程的描述而直接展现最终结果，与此同时聚焦于商业项目上的机器学习工程师很少有时间记录下他们的过程。教科书倾向于回避实践指导，而是优先考虑基础知识原则，即便这些作者有良好的应用经验并可以提供给有用的建议。在准备这篇文档时，我们无法找到一种能去全面解释*如何在深度学习中获得良好结果*的方法。相反，我们发现在博客帖子与社交媒体上找到了一些建议，包括在论文附录中的训练技巧、某个研究项目的特定训练流程以及诸多的困惑。深度学习专家和缺乏能力的实践者使用看似相同的方法在结构上也存在着鸿沟；同时，这些专家也承认他们所使用的一些技巧可能并不是有所依据的。随着深度学习的成熟并将对世界产生更大的影响，我们的社区需要更多涵盖所有对获得良好结果至关重要的实用细节和有效方法的资源。
 
-We are a team of five researchers and engineers who have worked in deep learning
-for many years, some of us since as early as 2006. We have applied deep learning
-to problems in everything from speech recognition to astronomy, and learned a
-lot along the way. This document grew out of our own experience training neural
-networks, teaching new machine learning engineers, and advising our colleagues
-on the practice of deep learning. Although it has been gratifying to see deep
-learning go from a machine learning approach practiced by a handful of academic
-labs to a technology powering products used by billions of people, deep learning
-is still in its infancy as an engineering discipline and we hope this document
-encourages others to help systematize the field's experimental protocols.
+我们是一个耕耘深度学习领域多年的五人研究者与工程师的团队，我们中的一些人早在2006年就开始了相关的研究。从语音识别到天文学，我们将深度学习应用于各种问题，并在这个过程中积累了许多知识与经验。这篇文档源于我们自己训练神经网络的经验，旨在指导机器学习的新工程师并为我们的同时提供深度学习的实践建议。尽管看到在大量的高校实验室里实践机器学习的方法和机器学习驱动的技术产品造福上亿人非常欣慰，深度学习作为一门工程学科依然处于起步阶段。我们希望这份文档可以鼓励并帮助他人理解该领域的实验方法。
 
-This document came about as we tried to crystalize our own approach to deep
-learning and thus it represents the opinions of the authors at the time of
-writing, not any sort of objective truth. Our own struggles with hyperparameter
-tuning made it a particular focus of our guidance, but we also cover other
-important issues we have encountered in our work (or seen go wrong). Our
-intention is for this work to be a living document that grows and evolves as our
-beliefs change. For example, the material on debugging and mitigating training
-failures would not have been possible for us to write two years ago since it is
-based on recent results and ongoing investigations. Inevitably, some of our
-advice will need to be updated to account for new results and improved
-workflows. We do not know the *optimal* deep learning recipe, but until the
-community starts writing down and debating different procedures, we cannot hope
-to find it. To that end, we would encourage readers who find issues with our
-advice to produce alternative recommendations, along with convincing evidence,
-so we can update the playbook. We would also love to see alternative guides and
-playbooks that might have different recommendations so we can work towards best
-practices as a community. Finally, any sections marked with a 🤖 emoji are places
-we would like to do more research. Only after trying to write this playbook did
-it become completely clear how many interesting and neglected research questions
-can be found in the deep learning practitioner's workflow.
+这份文档是在我们试图凝练自己在深度学习的方法时产生的，因此它代表了作者当时的观点，而不是任何形式的客观事实。我们自己与超参数的调优斗争使它成为我们指南的一个特别重点，但此文档也涵盖其他我们在工作中遇到（或看到出错）的重要问题。我们的意图是让这项工作成为一份灵活的文档，并随着我们的观点会改变。例如，两年前我们如果要写关于调试和调优的材料来说是不可能的，因为它需要基于最近的研究结果和正在进行的调查。不可避免地，我们的一些建议将需要更新，以说明新的结果和改进工作流程。我们不知道*最佳的*深度学习方法，但是只要社区没开始记录并讨论不同的流程，我们就不能找到它。为此，我们鼓励那些使用我们的提出的建议并发现了更好的方法的读者，带着令人信服的证据，一起更新这篇文档。我们也希望看到其他的指南和提供可能不同建议的文档，这样我们就一起将实践做到最好。最后，任何标有🤖表情符号是我们想做更多的研究的方向。只有在尝试写下这篇文档之后才发现，在深度学习从业者的工作流程中可以找到多少有趣的和被忽视的研究问题。
 
 ## Guide for starting a new project
 
-Many of the decisions we make over the course of tuning can be made once at the
-beginning of a project and only occasionally revisited when circumstances
-change.
+调优过程的许多决定都可以在项目开始之际决定，仅需在场景变化时偶尔需要重新考虑。
 
-Our guidance below makes the following assumptions:
+我们下文的指导有如下的假设：
 
--   Enough of the essential work of problem formulation, data cleaning, etc. has
-    already been done that spending time on the model architecture and training
-    configuration makes sense.
--   There is already a pipeline set up that does training and evaluation, and it
-    is easy to execute training and prediction jobs for various models of
-    interest.
--   The appropriate metrics have been selected and implemented. These should be
-    as representative as possible of what would be measured in the deployed
-    environment.
+-   问题的建模足够本质，数据清洗之类的工作已经完成，并且已经在模型架构和训练配置上花费实践验证有效
+-   已经建立了包含训练和评估的流程，并且对不同的研究模型容易执行训练和预测的工作
+-   选择并部署了恰当的测量手段。测量手段应该能充分反映部署环境下的需测量的信息。
 
 ### Choosing the model architecture
 
-***Summary:*** *When starting a new project, try to reuse a model that already
-works.*
+***总结：*** *当开始一个新项目时，尝试重新使用一个已经有效的模型。*
 
--   Choose a well established, commonly used model architecture to get working
-    first. It is always possible to build a custom model later.
--   Model architectures typically have various hyperparameters that determine
-    the model's size and other details (e.g. number of layers, layer width, type
-    of activation function).
-    -   Thus, choosing the architecture really means choosing a family of
-        different models (one for each setting of the model hyperparameters).
-    -   We will consider the problem of choosing the model hyperparameters in
-        [Choosing the initial configuration](#choosing-the-initial-configuration)
-        and
-        [A scientific approach to improving model performance](#a-scientific-approach-to-improving-model-performance).
--   When possible, try to find a paper that tackles something as close as
-    possible to the problem at hand and reproduce that model as a starting
-    point.
+-   先选择一个常见的模型架构、建立好的模型。自定义的模型通常都可以在之后构建。
+-   模型架构通常有许多超参数决定了模型的大小和其他细节（比如说层数、层宽、激活函数等）
+    -   因此，选择模型架构意味着选择不同模型系列（通过超参数设定产生的同类型模型）。
+    -   我们会在[Choosing the initial configuration](#choosing-the-initial-configuration)和[A scientific approach to improving model performance](#a-scientific-approach-to-improving-model-performance)两个模块讨论模型超参数的选择问题。
+-   如果可以的话，找到和你需要解决问题相似的论文并将论文中的模型作为一个调试的出发点。
 
 ### Choosing the optimizer
 
-***Summary:*** *Start with the most popular optimizer for the type of problem at
-hand.*
+***总结:*** *就当前问题选择最欢迎的优化器。*
 
--   No optimizer is the "best" across all types of machine learning problems and
-    model architectures. Even just
-    [comparing the performance of optimizers is a difficult task](https://arxiv.org/abs/1910.05446).
-    🤖
--   We recommend sticking with well-established, popular optimizers, especially
-    when starting a new project.
-    -   Ideally, choose the most popular optimizer used for the same type of
-        problem.
--   Be prepared to give attention to **\*****all****\*** hyperparameters of the
-    chosen optimizer.
-    -   Optimizers with more hyperparameters may require more tuning effort to
-        find the best configuration.
-    -   This is particularly relevant in the beginning stages of a project when
-        we are trying to find the best values of various other hyperparameters
-        (e.g. architecture hyperparameters) while treating optimizer
-        hyperparameters as
-        [nuisance parameters](#identifying-scientific-nuisance-and-fixed-hyperparameters).
+-   
+    在不同机器学习问题和模型架构的背景下没有最“优”的优化器。即便是对比优化器的性能就是一个复杂的问题，详见论文[comparing the performance of optimizers is a difficult task](https://arxiv.org/abs/1910.05446)。🤖
+-   我们建议使用构建良好的受欢迎的优化器，尤其是项目开始之时。
+    -   理想情况下，对同类型问题选择最受欢迎的优化器。
+-   注意所选优化器涉及的**所有**超参数：
+    -   有更多超参数的优化器需要更多的调试以得到最好的配置。
+    -   项目的初始阶段将优化器的超参数作为 [待调优参数](#identifying-scientific-nuisance-and-fixed-hyperparameters)并将其他超参数（比如说模型架构的超参数）的值调优非常关键。
     -   It may be preferable to start with a simpler optimizer (e.g. SGD with
         fixed momentum or Adam with fixed $\epsilon$, $\beta_{1}$, and
         $\beta_{2}$) in the initial stages of the project and switch to a more
         general optimizer later.
--   Well-established optimizers that we like include (but are not limited to):
-    -   [SGD with momentum](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms)
-        (we like the Nesterov variant)
-    -   [Adam and NAdam](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms),
-        which are more general than SGD with momentum. Note that Adam has 4
-        tunable hyperparameters
-        [and they can all matter](https://arxiv.org/abs/1910.05446)!
-        -   See
+-   我们喜欢使用的一些构造良好的优化器（包括但不限于）有：
+    -   [带动量的 SGD ](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms)（我们喜欢使用Nesterov的变种）
+    -   [Adam 和 NAdam](#what-are-the-update-rules-for-all-the-popular-optimization-algorithms)，比带动量的 SGD 更具适用性。 注意： Adam 有4个可调参数并且他们都很有用](https://arxiv.org/abs/1910.05446)！
+        -   参考：
             [How should Adam's hyperparameters be tuned?](#how-should-adams-hyperparameters-be-tuned)
 
 ### Choosing the batch size
