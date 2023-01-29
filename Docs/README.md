@@ -158,32 +158,19 @@
 -   和批次大小增加有关的资源开销有两种：
     1.  先期开销，比如使用新的硬件或在多GPU/多TPU上训练以覆写训练流程。
     2.  后期开销，比如团队资源分配、云服务器、电力/维护开销。
--   If there are significant upfront costs to increasing the batch size, it
-    might be better to defer increasing the batch size until the project has
-    matured and it is easier to assess the cost-benefit tradeoff. 如果先期开销会随着批次大小的增加而增加，那么最好在项目成熟前拖延批次大小的增加，这更易于在成本-收益之间获得权衡。部署多主机的并行训练程序可能会引入[bugs](#considerations-for-multi-host-pipelines) 或一些微小的[issues](#batch-normalization-implementation-details) 并且最好一开始时使用简单的训练流程。（从另一方面来讲，训练时间的加速可能在早期非常有用因为此时需要大量的调参实验。）
--   We refer to the total usage cost (which may include multiple different kinds
-    of costs) as the "resource consumption". We can break down the resource
-    consumption into the following components:
+-   如果先期开销会随着批次大小的增加而增加，那么最好在项目成熟前拖延批次大小的增加，这更易于在成本-收益之间获得权衡。部署多主机的并行训练程序可能会引入[bugs](#considerations-for-multi-host-pipelines) 或一些微小的[issues](#batch-normalization-implementation-details) 并且最好一开始时使用简单的训练流程。（从另一方面来讲，训练时间的加速可能在早期非常有用因为此时需要大量的调参实验。）
+-   我们将后期开销 （包含多种开销）称为资源消耗。 资源消耗的计算可以依据下式进行：
 
-<p align="center">Resource consumption = (resource consumption per step) x (total number of steps)</p>
+<p align="center">资源消耗 = (每步资源消耗) x (总执行步数)</p>
 
--   Increasing the batch size usually allows us to
-    [reduce the total number of steps](#choosing-the-batch-size-to-minimize-training-time).
-    Whether the resource consumption increases or decreases will depend on how
-    the consumption per step changes.
+-   增加批次大小通常会 [减少训练步骤总数](#choosing-the-batch-size-to-minimize-training-time)。不管资源消耗是增加还是减少，都取决于每一步的资源消耗的变化。
     -   Increasing the batch size might *decrease* the resource consumption. For
         example, if each step with the larger batch size can be run on the same
         hardware as the smaller batch size (with only a small increase in time
         per step), then any increase in the resource consumption per step might
         be outweighed by the decrease in the number of steps.
-    -   Increasing the batch size might *not change* the resource consumption.
-        For example, if doubling the batch size halves the number of steps
-        required and doubles the number of GPUs used, the total consumption (in
-        terms of GPU-hours) will not change.
-    -   Increasing the batch size might *increase* the resource consumption. For
-        example, if increasing the batch size requires upgraded hardware, the
-        increase in consumption per step might outweigh the reduction in the
-        number of steps.
+    -   增加批次大小并 *不能改变* 资源消耗。比如说，如果将批次大小加倍会将训练的步骤数减半并增加了GPU的使用数量，GPU使用时间的总消耗并不会改变。
+    -   增加批次大小可能会 *增加* 资源消耗，比如说，如果增加批次大小需要以升级硬件设施作为代价，那么每步资源消耗的增加可能会超过总的训练步数。
 
 </details>
 
