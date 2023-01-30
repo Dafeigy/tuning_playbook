@@ -174,189 +174,113 @@
 
 </details>
 
-#### Changing the batch size requires re-tuning most hyperparameters
+#### 改变批次大小需要重新调整大部分的超参数
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
+
 
 <br>
 
 
--   The optimal values of most hyperparameters are sensitive to the batch size.
-    Therefore, changing the batch size typically requires starting the tuning
-    process all over again.
--   The hyperparameters that interact most strongly with the batch size, and therefore are most important to tune separately for each batch size, are the optimizer hyperparameters (e.g. learning rate, momentum) and the regularization hyperparameters.
--   Keep this in mind when choosing the batch size at the start of a project. If
-    you need to switch to a different batch size later on, it might be
-    difficult, time consuming, and expensive to re-tune everything for the new
-    batch size.
+-   大多数的超参数的最优质对批次大小都很敏感。因此，改变批次大小可能需要重新开始调参过程。
+-   与批次大小最为相关的超参数，即需要重点对不同批次大小进行调整的超参数，就是和优化其相关的超参数（比如说学习率，动量等）以及正则化参数。
+-   一定要记住在项目开始之时当选择批次大小时，如果需要在后期调整批次大小使用新的批次大小，这可能会造成额外的时间消耗和重新调参的资源消耗。
 
 </details>
 
-#### How batch norm interacts with the batch size
+#### 批次归一化如何与批次大小相关
 
-<details><summary><em>[Click to expand]</em></summary>
+<details><summary><em>[点击展开]</em></summary>
+
 
 <br>
 
 
--   Batch norm is complicated and, in general, should use a different batch size
-    than the gradient computation to compute statistics. See the
-    [batch norm section](#batch-normalization-implementation-details) for a
-    detailed discussion.
+-   批次归一化很复杂，并且通常时使用不同的批次大小而不是梯度计算去计算统计量（compute statistics）。详情请参考[batch norm section](#batch-normalization-implementation-details) 部分的内容。
 
 </details>
 
-### Choosing the initial configuration
+### 选择初始配置
 
--   Before beginning hyperparameter tuning we must determine the starting point.
-    This includes specifying (1) the model configuration (e.g. number of
-    layers), (2) the optimizer hyperparameters (e.g. learning rate), and (3) the
-    number of training steps.
--   Determining this initial configuration will require some manually configured
-    training runs and trial-and-error.
--   Our guiding principle is to find a simple, relatively fast, relatively
-    low-resource-consumption configuration that obtains a "reasonable" result.
-    -   "Simple" means avoiding bells and whistles wherever possible; these can
-        always be added later. Even if bells and whistles prove helpful down the
-        road, adding them in the initial configuration risks wasting time tuning
-        unhelpful features and/or baking in unnecessary complications.
-        -   For example, start with a constant learning rate before adding fancy
-            decay schedules.
-    -   Choosing an initial configuration that is fast and consumes minimal
-        resources will make hyperparameter tuning much more efficient.
-        -   For example, start with a smaller model.
-    -   "Reasonable" performance depends on the problem, but at minimum means
-        that the trained model performs much better than random chance on the
-        validation set (although it might be bad enough to not be worth
-        deploying).
--   Choosing the number of training steps involves balancing the following
-    tension:
-    -   On the one hand, training for more steps can improve performance and
-        makes hyperparameter tuning easier (see
-        [Shallue et al. 2018](https://arxiv.org/abs/1811.03600)).
-    -   On the other hand, training for fewer steps means that each training run
-        is faster and uses fewer resources, boosting tuning efficiency by
-        reducing the time between cycles and allowing more experiments to be run
-        in parallel. Moreover, if an unnecessarily large step budget is chosen
-        initially, it might be hard to change it down the road, e.g. once the
-        learning rate schedule is tuned for that number of steps.
+-   在开始调整潮参数之前必须先确定出发点。包括(1)模型的配置（比如说模型的层数），(2)优化器的参数（比如说学习率），(3)训练步数。
+-   确定初始配置需要人工参与到训练配置和试错过程。
+-   我们的指导目的是帮助找到一种简单、相对快速、较少资源消耗并能得到一个合理的结果的的配置方法。
+    -   “简单”意味着避免任何额外的功能的使用，因为这些可以在后期添加上。即便额外的功能能有效帮助提升模型效果，在训练初期使用它们其实有浪费时间调参或引入不必要的计算复杂度的风险和问题。
+        -   比如说，使用一个固定的学习率衰减常数进行训练，而不是使用各种花里胡哨的学习率迭代方法更改学习率。
+    -   选择快速且资源消耗少的初始配置，这能帮助调参更加高效进行。
+        -   比如说，使用一个更小的模型开始训练。
+    -   合理的”性能表现取决于问题，但至少要保证训练好的模型在验证集上的表型要比随机选择的结果好（尽管效果很差并不值得部署）。
+-   训练的步数选择需要考虑如下因素的平衡：
+    -   从另一个角度说，更多步骤的训练能提高性能并且能使超参数调整更简单 (见 [Shallue 等人的论文](https://arxiv.org/abs/1811.03600))。
+    -   另一方面，更少步骤的训练意味着更少的资源消耗和更快的训练速度，通过减少训练间隔时间加速调参性能并允许并行地进行实验。而且如果在初始选择了不必要的大额开销（step budget），那么很难在训练过程中更改，比如说一开始选择了和训练步骤相关的学习率迭代方法。
 
-## A scientific approach to improving model performance
+## 一种提高模型性能的科学方法
 
-For the purposes of this document, the ultimate goal of machine learning
-development is to maximize the utility of the deployed model. Even though many
-aspects of the development process differ between applications (e.g. length of
-time, available computing resources, type of model), we can typically use the
-same basic steps and principles on any problem.
+机器学习的发展的终极目标就是最大化发挥部署模型的功能。即便和其他应用的开发（比如说开发时间、可行的计算资源、模型类型）有很多区别，我们同样可以针对问题使用一些相同基础的方法以及规则。
 
-Our guidance below makes the following assumptions:
+我们的指南依照如下假设进行：
 
--   There is already a fully-running training pipeline along with a
-    configuration that obtains a reasonable result.
--   There are enough computational resources available to conduct meaningful
-    tuning experiments and run at least several training jobs in parallel.
+-   已经存在一个完全可行的训练方法和可获得合理结果的配置。
+-   有足够的计算资源以完成调参实验并且能并行地运行多个训练任务。
 
-### The incremental tuning strategy
+### 增量调参策略
 
-***Summary:*** *Start with a simple configuration and incrementally make
-improvements while building up insight into the problem. Make sure that any
-improvement is based on strong evidence to avoid adding unnecessary complexity.*
+***总结:*** *开始时使用一个简单的配置并在针对问题逐渐增加额外的提升因素。确保任何的提升都有可靠的证据支撑，并且避免引入不必要的复杂度。*
 
--   Our ultimate goal is to find a configuration that maximizes the performance
-    of our model.
-    -   In some cases, our goal will be to maximize how much we can improve the
-        model by a fixed deadline (e.g. submitting to a competition).
-    -   In other cases, we want to keep improving the model indefinitely (e.g.
-        continually improving a model used in production).
--   In principle, we could maximize performance by using an algorithm to
-    automatically search the entire space of possible configurations, but this
-    is not a practical option.
-    -   The space of possible configurations is extremely large and there are
-        not yet any algorithms sophisticated enough to efficiently search this
-        space without human guidance.
--   Most automated search algorithms rely on a hand-designed *search space* that
-    defines the set of configurations to search in, and these search spaces can
-    matter quite a bit.
--   The most effective way to maximize performance is to start with a simple
-    configuration and incrementally add features and make improvements while
-    building up insight into the problem.
-    -   We use automated search algorithms in each round of tuning and
-        continually update our search spaces as our understanding grows.
--   As we explore, we will naturally find better and better configurations and
-    therefore our "best" model will continually improve.
-    -   We call it a *launch* when we update our best configuration (which may
-        or may not correspond to an actual launch of a production model).
+-   我们的最终目的是找到一个能最大化发挥模型性能的配置。
+    -   在某些情况下，我们的目标是在期限时间内最大化模型性能。
+    -   在另一些情况下，我们希望模型能够持续地不断提升性能（比如说不断地在使用过程中提升性能）。
+-   原则上来说，我们可以使用一种算法来自动搜索整个可行的配置空间中的配置，但是这不是一个实践中会考虑的方法。
+    -   可行的配置空间非常大并且暂时还没有一种算法能够在没有人类干预情况下精确地高效搜索到这个配置。
+-   大多数的自动搜索算法依赖人类设计的 *搜索空间* ，这个人为规定的配置空间对决定搜索算法搜索结果的性能有重要影响。
+-   最有效的最大化模型性能方法就是使用一个简单的配置开始训练，并在训练过程中逐渐增加功能和提升方法。
+    -   我们使用自动搜索方法在每一轮调参并不断更新搜索空间，并把更新结果作为我们的理解增长的表现。
+-   随着我们的探索我们很自然地找到越来越好的配置，然后我们最“好”的模型性能也不断地提高。
+    -   我们称我们更新时得到的最好配置为一个 *发行(launch)* ，这个最好的配置可能或也可能不是生产过程中的实际的发行。
     -   For each launch, we must make sure that the change is based on strong
         evidence – not just random chance based on a lucky configuration – so
-        that we don't add unnecessary complexity to the training pipeline.
+        that we don't add unnecessary complexity to the training pipeline.对于每一个发行，我们必须确保每一个改变都有可靠的证据支撑-不是运气好捧出来的一个随机配置-因此我们不会在训练流程中添加额外的不必要的复杂度。
 
-At a high level, our incremental tuning strategy involves repeating the
-following four steps:
+从高级的角度来讲，我们的增量调参策略就是如下四个步骤的重复：
 
-1.  Identify an appropriately-scoped goal for the next round of experiments.
-2.  Design and run a set of experiments that makes progress towards this goal.
-3.  Learn what we can from the results.
-4.  Consider whether to launch the new best configuration.
+1.  确定下一轮实验的目标的合适范围。
+2.  设计并且运行一系列的实验使得模型朝目标方向移动。
+3.  从实验结果中分析原因。
+4.  考虑是否发行最好的配置。
 
-The remainder of this section will consider this strategy in much greater
-detail.
+本节的后续内容将更详细地描述这种策略。
 
-### Exploration vs exploitation
+### 探索 vs 验证
 
-***Summary:*** *Most of the time, our primary goal is to gain insight into the
-problem.*
+***总结:*** *大多数时候我们的主要目标是深入地了解一个问题。*
 
--   Although one might think we would spend most of our time trying to maximize
-    performance on the validation set, in practice we spend the majority of our
-    time trying to gain insight into the problem, and comparatively little time
-    greedily focused on the validation error.
-    -   In other words, we spend most of our time on "exploration" and only a
-        small amount on "exploitation".
--   In the long run, understanding the problem is critical if we want to
-    maximize our final performance. Prioritizing insight over short term gains
-    can help us:
-    -   Avoid launching unnecessary changes that happened to be present in
-        well-performing runs merely through historical accident.
-    -   Identify which hyperparameters the validation error is most sensitive
-        to, which hyperparameters interact the most and therefore need to be
-        re-tuned together, and which hyperparameters are relatively insensitive
-        to other changes and can therefore be fixed in future experiments.
-    -   Suggest potential new features to try, such as new regularizers if
-        overfitting is an issue.
-    -   Identify features that don't help and therefore can be removed, reducing
-        the complexity of future experiments.
-    -   Recognize when improvements from hyperparameter tuning have likely
-        saturated.
-    -   Narrow our search spaces around the optimal value to improve tuning
-        efficiency.
--   When we are eventually ready to be greedy, we can focus purely on the
-    validation error even if the experiments aren't maximally informative about
-    the structure of the tuning problem.
+-   尽管有人会认为我们使用了太多时间来最大化验证集上的性能，但我们在实践中我们尝试花更多的时间深入了解问题，并相对花费较少的精力解决验证集错误的问题。
+    -   从另一方面来讲，我们大多数的时间使用在“探索”，而“验证”只占了很少一部分。
+-   长期来看，如果要最大化模型最终i性能，理解问题更重要。短期内对问题的深入了解有助于我们：
+    -   避免性能良好的过程中仅通过训练过程中偶尔的意外引入不必要的改变。
+    -   确定验证集错误中对超参数最敏感的因素，哪些超参数需要以及和其他超参数一起被重新调整，哪些超参数不那么敏感可以在后面的实验中设定为常量。
+    -   尝试一些可能有效的功能，比如说如果出现了过拟合尝试使用新的正则化方法。
+    -   确认对结果影响无关的特征并将其移除，为后来的实验减少复杂度。
+    -   辨识出超参数调整对模型性能提升的饱和情况。
+    -   缩小搜索空间到最优值附近以提高调参效率。
+-   当我们最终决定“贪婪”尝试新方法，我们可以将注意力完全放在验证集错误，即便实验还没有针对调参问题的本质得到最有用的信息。
 
-### Choosing the goal for the next round of experiments
+### 选择下一轮实验的目标
 
-***Summary:*** *Each round of experiments should have a clear goal and be
-sufficiently narrow in scope that the experiments can actually make progress
-towards the goal.*
+***总结:*** *每一轮实验都应该有一个清晰的目标并且可以通过实验逼近这个目标并有效缩小问题的规模。*
 
--   Each round of experiments should have a clear goal and be sufficiently
-    narrow in scope that the experiments can actually make progress towards the
-    goal: if we try to add multiple features or answer multiple questions at
-    once, we may not be able to disentangle the separate effects on the results.
--   Example goals include:
-    -   Try a potential improvement to the pipeline (e.g. a new regularizer,
-        preprocessing choice, etc.).
-    -   Understand the impact of a particular model hyperparameter (e.g. the
-        activation function)
-    -   Greedily maximize validation error.
+-   每一轮实验都应该有一个清晰的目标并且可以通过实验逼近这个目标并有效缩小问题的规模：如果我们尝试同时增加更多的特征或回答更多的问题，我们可能不能分辨出究竟是哪一个在发挥作用。
+-   目标的案例包括：
+    -   尝试在训练流程使用通用的提升方法（比如说新的正则项，预处理选项等等）
+    -   理解某一个模型的超参数的影响（比如说激活函数）
+    -   贪婪地最大化验证集误差。
 
-### Designing the next round of experiments
+### 设计下一轮实验
 
-***Summary:*** *Identify which hyperparameters are scientific, nuisance, and
-fixed hyperparameters for the experimental goal. Create a sequence of studies to
+***总结:*** *Create a sequence of studies to
 compare different values of the scientific hyperparameters while optimizing over
 the nuisance hyperparameters. Choose the search space of nuisance
-hyperparameters to balance resource costs with scientific value.*
+hyperparameters to balance resource costs with scientific value.确定哪些超参数是研究对象、无关干扰以及固定常量。在忽略无关的超参时优化创建一个研究的序列来对比不同研究对象超参数取值的影响，通过给定的研究对象超参选择无关超参的搜索空间以平衡资源消耗/*
 
 #### Identifying scientific, nuisance, and fixed hyperparameters
 
